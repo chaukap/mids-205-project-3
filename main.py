@@ -1,46 +1,64 @@
 import numpy as np
 from numpy import random
 
-from flask import Flask, request
+from flask import Flask, request, render_template
+
 app = Flask(__name__)
+producer = KafkaProducer(bootstrap_servers='kafka:29092')
 
 board = np.random.binomial(1, .2, size=10000).reshape(100,100)
 
 
 ####EVENTS:
-#hit_mine_event
-#uncover_safe_space_event
-#true_positive_event (flag where there is a mine)
-#false_positive_event (flag where there is no mine)
+hit_mine_event = {'event_type':'hit_mine'}
+hit_safe_space_event = {'event_type':'uncover_safe_space'}
+correct_flag_event = {'event_type':'correct_flag'}
+incorrect_flag_event = {'event_type':'incorrect_flag'}
 
 
 def log_to_kafka(topic, event):
     event.update(request.headers)
     producer.send(topic, json.dumps(event).encode())
-
+    return
+    
+@app.route('/')
+def home():
+    return 'Welcome to Minesweeper!'
+    
+    
+    
 @app.route('/check', methods=['GET'])
 def check():
-    x = int(request.args.get('x'))
-    y = int(request.args.get('y'))
+    x = 3 #int(request.args.get('x'))
+    y = 4 #int(request.args.get('y'))
     hit_mine_event = {'event_type':'hit_mine'}
-    uncover_safe_space_event = {'event_type':'uncover_safe_space'}
+    hit_safe_space_event = {'event_type':'uncover_safe_space'}
 
     if(board[x][y]):
         log_to_kafka('events', hit_mine_event)
         return "Boom! Game Over."
 
-    log_to_kafka('events', uncover_safe_space_event)
+    log_to_kafka('events', hit_safe_space_event)
     return "Safe!"
+
+
+
 
 @app.route('/flag', methods=['GET'])
 def flag():
-    x = int(request.args.get('x'))
-    y = int(request.args.get('y'))
-
+    x = 16 #int(request.args.get('x'))
+    y = 24 #int(request.args.get('y'))
+    correct_flag_event = {'event_type':'correct_flag'}
+    incorrect_flag_event= {'event_type':'incorrect_flag'}
+    
     if(board[x][y]):
+        log_to_kafka('events', correct_flag_event)
         return "That's a bomb alright!"
 
+    log_to_kafka('events', incorrect_flag_event)
     return "Nope! Game Over." #should an incorrect flag end the game?
+
+
 
 @app.route('/solution', methods=['GET'])
 def solution():

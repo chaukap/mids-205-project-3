@@ -1,12 +1,13 @@
 import numpy as np
 from numpy import random
-
+from kafka import KafkaProducer
 from flask import Flask, request, render_template
 
 app = Flask(__name__)
 producer = KafkaProducer(bootstrap_servers='kafka:29092')
 
 board = np.random.binomial(1, .2, size=10000).reshape(100,100)
+
 
 
 ####EVENTS:
@@ -17,14 +18,25 @@ incorrect_flag_event = {'event_type':'incorrect_flag'}
 
 
 def log_to_kafka(topic, event):
-    event.update(request.headers)
     producer.send(topic, json.dumps(event).encode())
-    return
+
+# def log_to_kafka(topic, event):
+#     event.update(request.headers)
+#     producer.send(topic, json.dumps(event).encode())
+#     return
     
 @app.route('/')
 def home():
+    startup_event = {'event_type':'a_startup_event'}
+    log_to_kafka('events', test_event)
     return 'Welcome to Minesweeper!'
-    
+
+
+@app.route('/test', methods=['GET'])
+def test():
+    test_event = {'event_type':'a_test_event'}
+    log_to_kafka('events', test_event)
+    return "Safe!"
     
     
 @app.route('/check', methods=['GET'])

@@ -1,3 +1,5 @@
+#no kafka messages being written
+
 from flask import Flask
 
 app = Flask(__name__)
@@ -12,23 +14,23 @@ def hello():
 @app.route('/create_file')
 def create_a_file():
     with open('this_is_a_test.txt', 'w') as f:
-        f.write(f'Creating file and writing first line!')
+        f.write(f'Creating file and writing first line!\n')
         f.close()
-    return 'YOU JUST CREATED A TEXT FILE AND WROTE THE FIRST LINE\n'
+    return 'YOU JUST CREATED A TEXT FILE AND WROTE THE FIRST LINE'
 
 
 @app.route('/add_to_file')
 def add_a_line():
-    
+
     global start
-    
+
     start+=1
-    
+
     with open('this_is_a_test.txt', 'a') as f:
-        f.write(f'Adding a line!')
+        f.write(f'Adding a line!\n')
         f.close()
-        
-        
+
+
     return f'YOU JUST ADDED LINE {start}\n'
 
 

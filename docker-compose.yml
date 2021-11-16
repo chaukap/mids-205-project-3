@@ -64,3 +64,17 @@ services:
     tty: true
     volumes:
       - ~/project-3-chaukap:/project-3-chaukap
+      
+      
+  mids:
+    image: midsw205/base:0.1.8
+    stdin_open: true
+    tty: true
+    volumes:
+      - ~/w205:/w205
+    expose:
+      - "5000"
+    ports:
+      - "5000:5000"
+    extra_hosts:
+      - "moby:127.0.0.1"

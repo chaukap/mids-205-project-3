@@ -5,6 +5,7 @@ import uuid
 from flask import Flask, request, render_template, redirect, url_for
 from datetime import datetime
 import redis
+import random
 
 redis_client = redis.Redis(host='localhost', port='6379')
 
@@ -39,7 +40,7 @@ def get_mines(session_id):
 def home():
     session_id = str(uuid.uuid4())
     max_index = (board_size * board_size) - 1
-    mines = [str(random.randint(0, max_index)) for i in range(0,40)]
+    mines = [str(random.randint(0, max_index)) for i in range(0,int((board_size * board_size) * 0.2))]
     
     redis_client.set(session_id, " ".join(mines))
     
@@ -122,6 +123,15 @@ def solution():
     
     if session_id == None:
         return redirect(url_for('home'))
+    
+    board = [[0 for z in range(0, board_size)] for i in range(0, board_size)]
+    
+    mines = get_mines(session_id)
+    
+    for mine in mines:
+        x = int(int(mine) / board_size)
+        y = int(int(mine) % board_size)
+        board[x][y] = 1
     
     log_to_kafka('events', {
         'event_type':'solution',

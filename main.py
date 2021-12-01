@@ -7,7 +7,7 @@ from datetime import datetime
 import redis
 import random
 
-redis_client = redis.Redis(host='localhost', port='6379')
+redis_client = redis.Redis(host='redis', port='6379')
 
 app = Flask(__name__)
 # producer = KafkaProducer(bootstrap_servers='kafka:29092')
@@ -87,9 +87,12 @@ def check():
 
 @app.route('/flag', methods=['GET'])
 def flag():
-    x = int(request.args.get('x'))
-    y = int(request.args.get('y'))
+    x = int(request.args.get('x')) if int(request.args.get('x')) is not None else -1
+    y = int(request.args.get('y')) if int(request.args.get('y')) is not None else -1
     session_id = request.args.get('session_id')
+    
+    if x == -1 or y == -1:
+        return "Invalid coordinates."
     
     if session_id == None:
         return redirect(url_for('home'))

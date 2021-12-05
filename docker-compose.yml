@@ -34,7 +34,7 @@ services:
     expose:
       - "8020" # nn
       - "50070" # nn http
-      - "8888" # hue
+    #  - "8888" # hue
     #ports:
     #- "8888:8888"
     extra_hosts:

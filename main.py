@@ -1,9 +1,10 @@
-import numpy as np
 import uuid
 from flask import Flask, request, render_template, redirect, url_for
 from datetime import datetime
+from kafka import KafkaProducer
 import redis
 import random
+import json
 
 redis_client = redis.Redis(host='redis', port='6379')
 
@@ -30,7 +31,7 @@ def get_mines(session_id):
     mines = redis_client.get(session_id)
     return mines.split(" ")
 
-def neighboring_bombs(i,j):
+def neighboring_bombs(i,j,session_id):
     total = 0
     start_row = i-1
     start_column = j-1
@@ -83,7 +84,7 @@ def check():
     mines = get_mines(session_id)
     flat_location = str(x * board_size + y)
 
-    if(flat_location in mines):
+    if flat_location in mines:
         log_to_kafka('events', {
             'event_type': 'hit_mine',
             'x_coord': x,
@@ -95,7 +96,7 @@ def check():
 
     log_to_kafka('events', {
         'event_type':'uncover_safe_space',
-        'neighboring_bombs': neighboring_bombs(x,y),
+        'neighboring_bombs': neighboring_bombs(x,y,session_id),
         'x_coord': x,
         'y_coord': y,
         'session_id': session_id,
@@ -107,8 +108,8 @@ def check():
 def flag():
     x = int(request.args.get('x')) if int(request.args.get('x')) is not None else -1
     y = int(request.args.get('y')) if int(request.args.get('y')) is not None else -1
+    
     session_id = request.args.get('session_id')
-
     if x == -1 or y == -1:
         return "Invalid coordinates."
     
@@ -118,7 +119,7 @@ def flag():
     mines = get_mines(session_id)
     flat_location = str(x * board_size + y)
 
-    if(flat_location in mines):
+    if flat_location in mines:
         log_to_kafka('events', {
             'event_type':'correct_flag',
             'x_coord': x,

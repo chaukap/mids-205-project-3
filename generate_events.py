@@ -8,10 +8,11 @@ board_height = 100
 def main():
     """main
     """
-    session_id = home()
-    check(session_id, 5)
-    flag(session_id, 5)
-    solution(session_id, 1)
+    for i in range(0, 5):
+        user = home()
+        check(user, 5)
+        flag(user, 5)
+        solution(user, 1)
 
 def home():
     endpoint = app_url
@@ -20,17 +21,17 @@ def home():
 
 def flag(session_id, num_events=1):    
     for n in range(num_events): 
-        endpoint = f'{app_url}flag?x={randrange(board_width)}&y={randrange(board_height)}&session_id={str(session_id)}'
+        endpoint = app_url + 'flag?x=' + str(randrange(board_width)) + '&y=' + str(randrange(board_height)) + '&session_id=' + str(session_id)
         r = requests.get(endpoint)
     
 def check(session_id, num_events=1): 
     for n in range(num_events): 
-        endpoint = f'{app_url}check?x={randrange(board_width)}&y={randrange(board_height)}&session_id={str(session_id)}'
+        endpoint = app_url + 'check?x=' + str(randrange(board_width)) + '&y=' + str(randrange(board_height)) + '&session_id=' + str(session_id)
         r = requests.get(endpoint)
         
 def solution(session_id, num_events=1):     
     for n in range(num_events): 
-        endpoint = f'{app_url}solution?session_id={session_id}'
+        endpoint = app_url + 'solution?session_id=' + str(session_id)
         r = requests.get(endpoint)
 
 if __name__ == "__main__":

@@ -13,13 +13,6 @@ services:
       - "3888"
     extra_hosts:
       - "moby:127.0.0.1"
-      
-  redis:
-    image: redis:latest
-    expose:
-      - "6379"
-    ports:
-      - "6379:6379"
 
   kafka:
     image: confluentinc/cp-kafka:latest

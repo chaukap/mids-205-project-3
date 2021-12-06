@@ -67,7 +67,9 @@ services:
       
       
   mids:
-    image: midsw205/base:latest
+#    image: jasonwithcoffee/w205_redis:latest
+#     image: midsw205/base:latest
+    image: hassansaadca/saad_project3:latest
     stdin_open: true
     tty: true
     volumes:

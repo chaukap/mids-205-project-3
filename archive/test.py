@@ -1,6 +1,6 @@
 #simplified messages being written
 import json
-# import numpy as np
+import numpy as np
 from kafka import KafkaProducer
 from flask import Flask, request
 

@@ -68,8 +68,7 @@ def home():
 
     log_to_kafka('events', {
         'event_type':'a_startup_event',
-        'session_id': session_id,
-        'datetime': str(datetime.utcnow())
+        'session_id': session_id
     })
 
     return str(session_id)
@@ -88,21 +87,22 @@ def check():
 
     if flat_location in mines:
         log_to_kafka('events', {
-            'event_type': 'hit_mine',
+            'event_type': 'check',
+            'outcome':'hit_mine',
+            'neighboring_bombs': neighboring_bombs(x,y,session_id),
             'x_coord': x,
             'y_coord': y,
-            'session_id': session_id,
-            'datetime': str(datetime.utcnow())
+            'session_id': session_id
         })
         return "Boom! Game Over."
 
     log_to_kafka('events', {
-        'event_type':'uncover_safe_space',
+        'event_type':'check',
+        'outcome':'safe',
         'neighboring_bombs': neighboring_bombs(x,y,session_id),
         'x_coord': x,
         'y_coord': y,
-        'session_id': session_id,
-        'datetime': str(datetime.utcnow())
+        'session_id': session_id
     })
     return "Safe!"
 
@@ -123,20 +123,20 @@ def flag():
 
     if flat_location in mines:
         log_to_kafka('events', {
-            'event_type':'correct_flag',
+            'event_type':'flag',
+            'outcome':'correct',
             'x_coord': x,
             'y_coord': y,
-            'session_id': session_id,
-            'datetime': str(datetime.utcnow())
+            'session_id': session_id
         })
         return "That's a bomb alright!"
 
     log_to_kafka('events', {
-        'event_type':'incorrect_flag',
+        'event_type':'flag',
+        'outcome':'incorrect',
         'x_coord': x,
         'y_coord': y,
-        'session_id': session_id,
-        'datetime': str(datetime.utcnow())
+        'session_id': session_id
     })
     return "Nope! Game Over."
 
@@ -157,8 +157,7 @@ def solution():
 
     log_to_kafka('events', {
         'event_type':'solution',
-        'session_id': session_id,
-        'datetime': str(datetime.utcnow())
+        'session_id': session_id
     })
 
     return str(board)

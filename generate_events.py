@@ -10,8 +10,8 @@ def main():
     """
     for i in range(0, 5):
         user = home()
-        check(user, 50)
-        flag(user, 100)
+        check(user, 10)
+        flag(user, 15)
         solution(user, 5)
 
 def home():

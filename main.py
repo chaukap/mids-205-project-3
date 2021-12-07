@@ -15,10 +15,8 @@ board_size = 100
 
 ####EVENTS:
 startup = {'event_type':'a_startup_event'}
-hit_mine_event = {'event_type':'hit_mine'}
-hit_safe_space_event = {'event_type':'uncover_safe_space'}
-correct_flag_event = {'event_type':'correct_flag'}
-incorrect_flag_event = {'event_type':'incorrect_flag'}
+check = {'event_type':'check'}
+flag = {'event_type':'flag'}
 solution_event = {'event_type':'solution'}
 
 def log_to_kafka(topic, event):

@@ -9,7 +9,7 @@ from pyspark.sql import Row
 from pyspark.sql.types import StructType, StructField, StringType
 
 
-def flag_event_schema():
+def check_event_schema():
     """
     root
      |-- key: binary (nullable = true)
@@ -30,7 +30,7 @@ def flag_event_schema():
 
 #######   define event type   ##########
 ""
-name = 'flag'
+name = 'check'
 ""
 @udf('boolean')
 def test(event_as_json):
@@ -38,7 +38,7 @@ def test(event_as_json):
     if event['event_type'] == name:
         return True
     return False
-    
+
 
 
 def main():
@@ -61,23 +61,23 @@ def main():
         .option("endingOffsets", "latest") \
         .load() 
 
-    flag_events = raw_events \
+    check_events = raw_events \
         .select(raw_events.value.cast('string').alias('stats'),\
                 raw_events.timestamp.cast('string'))\
         .filter(test('stats'))
 
 
-    extracted_flag_events = flag_events \
+    extracted_check_events = check_events \
         .rdd \
         .map(lambda r: Row(timestamp=r.timestamp, **json.loads(r.stats))) \
         .toDF()
 
-    extracted_flag_events \
+    extracted_check_events \
         .write \
         .mode('overwrite') \
-        .parquet('/tmp/flag_cell')
+        .parquet('/tmp/check_cell')
 
-    print('WRITE FLAG EVENTS TO PARQUET COMPLETE!')
+    print('WRITE CHECK EVENTS TO PARQUET COMPLETE!')
 
 if __name__ == "__main__":
     main()

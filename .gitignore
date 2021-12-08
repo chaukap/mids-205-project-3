@@ -1,0 +1,6 @@
+.ipynb_checkpoints/*
+.ipynb_checkpoints
+metastore_db/*
+derby.log
+*.pyc
+.DS_Store

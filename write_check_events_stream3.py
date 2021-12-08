@@ -1,44 +1,37 @@
 #!/usr/bin/env python
-"""
-Extract events from kafka and write them to hdfs
+"""Extract events from kafka and write them to hdfs
 """
 import json
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf, from_json
-from pyspark.sql import Row
 from pyspark.sql.types import StructType, StructField, StringType
 
 
-def check_event_schema():
+def check_schema():
     """
     root
-     |-- key: binary (nullable = true)
-     |-- value: binary (nullable = true)
-     |-- topic: string (nullable = true)
-     |-- partition: integer (nullable = true)
-     |-- offset: long (nullable = true)
-     |-- timestamp: timestamp (nullable = true)
-     |-- timestampType: integer (nullable = true)
+    |-- Accept: string (nullable = true)
+    |-- Host: string (nullable = true)
+    |-- User-Agent: string (nullable = true)
+    |-- event_type: string (nullable = true)
+    |-- timestamp: string (nullable = true)
     """
     return StructType([
-        StructField("key", StringType(), True),
-        StructField("value", StringType(), True),
-        StructField("topic", StringType(), True),
-        StructField("partition", StringType(), True),
-        StructField("offset", StringType(), True)
+        StructField("Accept", StringType(), True),
+        StructField("Host", StringType(), True),
+        StructField("User-Agent", StringType(), True),
+        StructField("event_type", StringType(), True),
     ])
 
-#######   define event type   ##########
-""
-name = 'check'
-""
+
 @udf('boolean')
-def test(event_as_json):
+def is_check(event_as_json):
+    """udf for filtering events
+    """
     event = json.loads(event_as_json)
-    if event['event_type'] == name:
+    if event['event_type'] == 'check':
         return True
     return False
-
 
 
 def main():
@@ -49,9 +42,6 @@ def main():
         .appName("ExtractEventsJob") \
         .getOrCreate()
 
-    
-
-
     raw_events = spark \
         .readStream \
         .format("kafka") \
@@ -59,24 +49,27 @@ def main():
         .option("subscribe", "events") \
         .load()
 
+    # Create a stream for buy events
     check_events = raw_events \
-        .filter(test(raw_events.value.cast('string'))) \
+        .filter(is_check(raw_events.value.cast('string'))) \
         .select(raw_events.value.cast('string').alias('raw_event'),
                 raw_events.timestamp.cast('string'),
                 from_json(raw_events.value.cast('string'),
-                          check_event_schema()).alias('json')) \
+                          check_schema()).alias('json')) \
         .select('raw_event', 'timestamp', 'json.*')
-
 
     sink = check_events \
         .writeStream \
         .format("parquet") \
-        .option("checkpointLocation", "/tmp/checkpoints_for_check_events") \
-        .option("path", "/tmp/check_stream_data") \
+        .option("checkpointLocation", "/tmp/checkpoints_check_events") \
+        .option("path", "/tmp/events_check") \
         .trigger(processingTime="10 seconds") \
         .start()
-    
+
     sink.awaitTermination()
+
+    query.awaitTermination()
+
 
 if __name__ == "__main__":
     main()

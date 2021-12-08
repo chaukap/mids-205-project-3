@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""
-Extract events from kafka and write them to hdfs
+"""Extract events from kafka and write them to hdfs
 """
 import json
 from pyspark.sql import SparkSession
@@ -29,16 +28,17 @@ def check_event_schema():
     ])
 
 #######   define event type   ##########
-""
-name = 'check'
-""
+########################################
+name = 'solution'
+########################################
+
 @udf('boolean')
 def test(event_as_json):
     event = json.loads(event_as_json)
     if event['event_type'] == name:
         return True
     return False
-
+    
 
 
 def main():
@@ -61,21 +61,21 @@ def main():
         .option("endingOffsets", "latest") \
         .load() 
 
-    check_events = raw_events \
+    solution_events = raw_events \
         .select(raw_events.value.cast('string').alias('stats'),\
                 raw_events.timestamp.cast('string'))\
         .filter(test('stats'))
 
 
-    extracted_check_events = check_events \
+    extracted_solution_events = solution_events \
         .rdd \
         .map(lambda r: Row(timestamp=r.timestamp, **json.loads(r.stats))) \
         .toDF()
 
-    extracted_check_events \
+    extracted_solution_events \
         .write \
         .mode('overwrite') \
-        .parquet('/tmp/check_cell')
+        .parquet('/tmp/solution_requests')
 
     print('WRITE TO PARQUET COMPLETE!')
 

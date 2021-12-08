@@ -10,9 +10,9 @@ def main():
     """
     for i in range(0, 5):
         user = home()
-        check(user, 50)
-        flag(user, 60)
-        solution(user, 5)
+        check(user, 100)
+        flag(user, 100)
+        solution(user, 100)
 
 def home():
     endpoint = app_url

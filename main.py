@@ -22,11 +22,6 @@ solution_event = {'event_type':'solution'}
 def log_to_kafka(topic, event):
     producer.send(topic, json.dumps(event).encode())
 
-# def log_to_kafka(topic, event):
-#     event.update(request.headers)
-#     producer.send(topic, json.dumps(event).encode())
-#     return
-
 def get_mines(session_id):
     mines = redis_client.get(session_id)
     return mines.split(" ")

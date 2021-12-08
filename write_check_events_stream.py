@@ -62,13 +62,12 @@ def main():
         .writeStream \
         .format("parquet") \
         .option("checkpointLocation", "/tmp/checkpoints_check_events") \
-        .option("path", "/tmp/events_check") \
+        .option("path", "/tmp/check_stream_data") \
         .trigger(processingTime="10 seconds") \
         .start()
 
     sink.awaitTermination()
 
-    query.awaitTermination()
 
 
 if __name__ == "__main__":
